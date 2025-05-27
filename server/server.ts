@@ -12,9 +12,9 @@ type Movie = {
 
 const db = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
+  /*ssl: {
     rejectUnauthorized: false,
-  },
+  },*/
 });
 
 const app = express();
