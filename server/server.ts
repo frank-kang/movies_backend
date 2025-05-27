@@ -55,7 +55,7 @@ app.post('/api/movies', async (req, res, next) => {
   }
 });
 
-app.put('/api/todos/:movieId', async (req, res, next) => {
+app.put('/api/movies/:movieId', async (req, res, next) => {
   try {
     const movieId = Number(req.params.movieId);
     if (!Number.isInteger(movieId) || movieId < 1) {
@@ -81,6 +81,29 @@ app.put('/api/todos/:movieId', async (req, res, next) => {
       throw new ClientError(404, `cannot find movie with movieId ${movieId}`);
     }
     res.json(movie);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.delete('/api/movies/:movieId', async (req, res, next) => {
+  try {
+    const movieId = Number(req.params.movieId);
+    if (!Number.isInteger(movieId) || movieId < 1) {
+      throw new ClientError(400, 'movieId must be a positive integer');
+    }
+    const sql = `
+      delete from "movies"
+        where "movieId" = $1
+        returning *
+    `;
+    const params = [movieId];
+    const result = await db.query<Movie>(sql, params);
+    const [movie] = result.rows;
+    if (!movie) {
+      throw new ClientError(404, `cannot find movie with movieId ${movieId}`);
+    }
+    res.status(204).end();
   } catch (err) {
     next(err);
   }
