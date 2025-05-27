@@ -3,12 +3,11 @@ import express from 'express';
 import pg from 'pg';
 import { ClientError, errorMiddleware } from './lib/index.js';
 
-type Todo = {
-  entryId: number;
-  task: string;
-  isCompleted: boolean;
-  createdAt: string;
-  updatedAt: string;
+type Movie = {
+  title: string;
+  summary: string;
+  linkToIMDB: string;
+  rating: number;
 };
 
 const db = new pg.Pool({
@@ -21,65 +20,67 @@ const db = new pg.Pool({
 const app = express();
 app.use(express.json());
 
-app.get('/api/todos', async (req, res, next) => {
+app.get('/api/movies', async (req, res, next) => {
   try {
     const sql = `
       select *
-        from "todos"
-        order by "todoId"
+        from "movies"
+        order by "movieId" asc
     `;
-    const result = await db.query<Todo>(sql);
+    const result = await db.query<Movie>(sql);
     res.json(result.rows);
   } catch (err) {
     next(err);
   }
 });
 
-app.post('/api/todos', async (req, res, next) => {
+app.post('/api/movies', async (req, res, next) => {
   try {
-    const { task, isCompleted = false } = req.body;
-    if (!task || typeof isCompleted !== 'boolean') {
-      throw new ClientError(400, 'task and isCompleted are required');
+    const { title, summary, linkToIMDB, rating } = req.body;
+    if (!title || !summary || !linkToIMDB || typeof rating !== 'number') {
+      throw new ClientError(400, 'title, summary, linkToIMDB, and rating are required');
     }
     const sql = `
-      insert into "todos" ("task", "isCompleted")
-        values ($1, $2)
+      insert into "movies" ("title", "summary", "linkToIMDB", "rating")
+        values ($1, $2, $3, $4)
         returning *
     `;
-    const params = [task, isCompleted];
-    const result = await db.query<Todo>(sql, params);
-    const [todo] = result.rows;
-    res.status(201).json(todo);
+    const params = [title, summary, linkToIMDB, rating];
+    const result = await db.query<Movie>(sql, params);
+    
+    const [movie] = result.rows;
+    res.status(201).json(movie);
   } catch (err) {
     next(err);
   }
 });
 
-app.put('/api/todos/:todoId', async (req, res, next) => {
+app.put('/api/todos/:movieId', async (req, res, next) => {
   try {
-    const todoId = Number(req.params.todoId);
-    if (!Number.isInteger(todoId) || todoId < 1) {
-      throw new ClientError(400, 'todoId must be a positive integer');
+    const movieId = Number(req.params.movieId);
+    if (!Number.isInteger(movieId) || movieId < 1) {
+      throw new ClientError(400, 'movieId must be a positive integer');
     }
-    const { task, isCompleted } = req.body;
-    if (typeof isCompleted !== 'boolean') {
-      throw new ClientError(400, 'isCompleted (boolean) is required');
+    const { title, summary, linkToIMDB, rating } = req.body;
+    if (!title || !summary || !linkToIMDB || typeof rating !== 'number') {
+      throw new ClientError(400, 'title, summary, linkToIMDB, and rating are required');
     }
     const sql = `
-      update "todos"
-        set "updatedAt" = now(),
-            "isCompleted" = $1,
-            "task" = $2
-        where "todoId" = $3
+      update "movies"
+        set "title" = $1,
+            "summary" = $2,
+            "linkToIMDB" = $3,
+            "rating" = $4
+        where "movieId" = $5
         returning *
     `;
-    const params = [isCompleted, task, todoId];
-    const result = await db.query<Todo>(sql, params);
-    const [todo] = result.rows;
-    if (!todo) {
-      throw new ClientError(404, `cannot find todo with todoId ${todoId}`);
+    const params = [title, summary, linkToIMDB, rating, movieId];
+    const result = await db.query<Movie>(sql, params);
+    const [movie] = result.rows;
+    if (!movie) {
+      throw new ClientError(404, `cannot find movie with movieId ${movieId}`);
     }
-    res.json(todo);
+    res.json(movie);
   } catch (err) {
     next(err);
   }
