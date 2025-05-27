@@ -1,5 +1,5 @@
 {
-  "name": "full_stack_project",
+  "name": "movies_backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
