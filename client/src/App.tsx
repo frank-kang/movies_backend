@@ -2,6 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import {Index} from './pages/Index'
 import './App.css';
 import { SiteNavBar } from './components/ui/SiteNavBar';
+import { Add } from './pages/Add';
+import { Update } from './pages/Update';
 
 function App() {
   
@@ -10,8 +12,8 @@ function App() {
     <Routes>
       <Route path="/" element={<SiteNavBar />} >
       <Route index element={<Index />} />
-      {/* <Route path='/movies/update/:movieId' element={<Update />} /> */}
-      {/* <Route path='/movies/add' element={<Add />} /> */}
+      <Route path='/movies/update/:movieId' element={<Update />} />
+      <Route path='/movies/add' element={<Add />} />
       </Route>
     </Routes>
     </>
