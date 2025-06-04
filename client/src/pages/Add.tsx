@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormDescription, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,6 +18,7 @@ const formSchema = z.object({
 export function Add() {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const [error, setError] = useState<Error | null>(null);
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -54,13 +54,25 @@ export function Add() {
             const movie = await response.json();
             alert(`Following movie added successfully: ${movie.title}`);
             navigate('/'); // Redirect to the home page after successful submission
-        } catch (error) {
-            console.error('There has been a problem with your fetch operation:', error);
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err);
+            } else {
+                setError(new Error(String(err)));
+            }
         } finally {
             setIsLoading(false);
         }
     }
     if (isLoading) return <div>Loading...</div>;
+    if (error) {
+        return (
+            <div>
+                Error Loading Players by ZipCode
+                {error instanceof Error ? error.message : 'Unknown Error'}
+            </div>
+        );
+    }
 
 
     return (
