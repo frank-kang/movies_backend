@@ -8,6 +8,7 @@ import {
 import { useEffect } from "react";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card"
+import { Link } from "react-router-dom";
 
 
 export function Index() {
@@ -69,6 +70,9 @@ useEffect(() => {
                                 <p>{movie.summary}</p>
                                 <a href={movie.linkToIMDB} target="_blank" rel="noopener noreferrer">View on IMDb</a>
                                 <p>Rating: {movie.rating}</p>
+                                <Link to={`/movies/update/${movie.movieId}`} className="text-blue-500 hover:underline">
+                                    Update
+                                </Link>
                             </CardContent>
                         </Card>
                         </div>
