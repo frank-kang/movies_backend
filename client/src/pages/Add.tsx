@@ -68,7 +68,7 @@ export function Add() {
     if (error) {
         return (
             <div>
-                Error Loading Players by ZipCode
+                Error adding movie.
                 {error instanceof Error ? error.message : 'Unknown Error'}
             </div>
         );
